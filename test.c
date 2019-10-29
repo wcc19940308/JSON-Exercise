@@ -16,25 +16,44 @@ static int test_pass = 0;
         if (equality)\
             test_pass++;\
         else {\
-            fprintf(stderr, "%s:%d: expect: " format " actual: " format "\n", __FILE__, __LINE__, expect, actual);\
-            main_ret = 1;\
-        }\
-    } while(0)
+          /*使用格式化输出到标准错误stderr中*/   \
+           fprintf(stderr, "%s:%d: expect: " format " actual: " format "\n", __FILE__, __LINE__, expect, actual); \
+           main_ret = 1; \
+        } \
+    }while (0)
 
 #define EXPECT_EQ_INT(expect, actual) EXPECT_EQ_BASE((expect) == (actual), expect, actual, "%d")
 
+#define TEST_ERROR(error, json) \
+    do { \
+        lept_value v;\
+        v.type = LEFT_FALSE;\
+        EXPECT_EQ_INT(error, lept_parse(&v, json));\
+        EXPECT_EQ_INT(LEFT_NULL, lept_get_type(&v));\
+    }while(0)
+
+// TDD，先写测试代码，再实现功能
 static void test_parse_null() {
     lept_value v;
     v.type = LEPT_TRUE;
-    EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "null"));
-    EXPECT_EQ_INT(LEPT_NULL, lept_get_type(&v));
+    EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "null")); // 检测expect==actual
+    EXPECT_EQ_INT(LEPT_NULL,lept_get_type(&v));
 }
 
-/* ... */
+static void test_parse_true() {
+    lept_value v;
+    v.type = LEPT_FALSE;
+    EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "true"));
+}
+
+static void test_parse_false() {
+    lept_value v;
+    v.type = LEPT_TRUE;
+    EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "false"));
+}
 
 static void test_parse() {
-    test_parse_null();
-    /* ... */
+    test_parse_false();
 }
 
 int main() {
